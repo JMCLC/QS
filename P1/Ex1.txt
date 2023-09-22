@@ -1,0 +1,4 @@
+DoubleNode(1, Leaf(2), SingleNode(3, DoubleNode(4, Leaf(5), Leaf(6))
+ - Serialized: Leaf(6), Leaf(5), DC(4), SC(3), Leaf(2), DC(1)
+
+If there is this case [CDNd(v), ..] => [] swap empty for [Leaf(v)]

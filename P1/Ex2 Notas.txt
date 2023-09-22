@@ -1,0 +1,42 @@
+Merge Sort:
+
+<3, 41, 52, 26, 38, 57, 9, 49>
+
+1º Divide in half
+
+<3, 41, 52, 26> <38, 57, 9, 49>
+
+2º Divide again
+
+<3, 41> <52, 26> <38, 57> <9, 49>
+
+3º Divide again
+
+<3> <41> <52> <26> <38> <57> <9> <49>
+
+4º Do the tree back and organize
+
+Merge Array:
+
+A: <1,3,5,6,2,4,9,10>
+    ^       ^       ^
+    l       m       r
+
+arr[0..4] == <1,3,5,6>
+arr[4..8] == <2,4,9,10>
+arr[l..r] => must be sorted
+
+1º Copy both parts to two auxiliary arrays (using copyArr)
+l = <1,3,5,6>
+     ^ ^ ^ ^
+     i i'i''i'''
+r = <2,4,9,10>
+     ^ ^ ^ ^
+     j j'j''j'''
+
+A: <1,3,5,6,2,4,9,10>
+    ^ ^ ^ ^ ^ ^ ^ ^ 
+    1 2 3 4 5 6 9 10
+Iterative
+
+Try and do the code without using the sorted invariant then add it when it works
