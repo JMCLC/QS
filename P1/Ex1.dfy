@@ -21,10 +21,10 @@ function deserialiseAux<V>(cs: seq<Code<V>>, trees: seq<Tree<V>>) : seq<Tree<V>>
   else match cs[0] {
     case CLf(v) => deserialiseAux(cs[1..], [Leaf(v)] + trees)
     case CSNd(v) =>
-      if |trees| >= 2 then deserialiseAux(cs[1..], [SingleNode(v, trees[1])] + trees[2..])
+      if |trees| >= 2 then deserialiseAux(cs[1..], [SingleNode(v, trees[0])] + trees[1..])
       else deserialiseAux(cs[1..], [Leaf(v)])
     case CDNd(v) =>
-      if |trees| >= 3 then deserialiseAux(cs[1..], [DoubleNode(v, trees[2], trees[1])] + trees[3..])
+      if |trees| >= 3 then deserialiseAux(cs[1..], [DoubleNode(v, trees[0], trees[1])] + trees[2..])
       else deserialiseAux(cs[1..], [Leaf(v)])
   }
 }
@@ -45,7 +45,68 @@ function deserialise<V>(cs : seq<Code<V>>): seq<Tree<V>>
 lemma SerialiseLemma<V>(t : Tree<V>)
   ensures deserialise(serialise(t)) == [t] 
 {
-  // ToDo
+  match t {
+    case Leaf(v) =>
+      calc {
+        deserialise(serialise(t));
+          ==
+            deserialise(serialise(Leaf(v)));
+          ==
+            deserialise([CLf(v)]);
+          ==
+            deserialiseAux([CLf(v)], []);
+          ==
+            deserialiseAux([], [Leaf(v)]);
+          ==
+            [Leaf(v)];
+          ==
+            [t];
+      }
+    case SingleNode(v, t1) =>
+      calc {
+        deserialise(serialise(t));
+          ==
+            deserialise(serialise(SingleNode(v, t1)));
+          ==
+            deserialise(serialise(t1) + [CSNd(v)]);
+          ==
+            deserialiseAux(serialise(t1) + [CSNd(v)], []);
+          ==
+            deserialiseAux(serialise(t1) + [CSNd(v)], []);
+          ==
+            deserialiseAux(serialise(t1) + [CSNd(v)], []);
+          == { SerialiseLemma(t1); }
+            deserialiseAux([CSNd(v)], [t1]);
+          ==
+            deserialiseAux([], [SingleNode(v, t1)]);
+          ==
+            [SingleNode(v, t1)];
+          ==
+            [t];
+      }
+    case DoubleNode(v, t1, t2) =>
+      calc {
+        deserialise(serialise(t));
+          ==
+            deserialise(serialise(DoubleNode(v, t1, t2)));
+          ==
+            deserialise(serialise(t2) + serialise(t1) + [CDNd(v)]);
+          ==
+            deserialiseAux(serialise(t2) + serialise(t1) + [CDNd(v)], []);
+          ==
+            deserialiseAux(serialise(t1) + [CDNd(v)], [t2]);
+          ==
+            deserialiseAux([CDNd(v)], [t1] + [t2]);
+          ==
+            deserialiseAux([CDNd(v)], [t1, t2]);
+          ==
+            deserialiseAux([], [DoubleNode(v, t1, t2)]);
+          ==
+            [DoubleNode(v, t1, t2)];
+          ==
+            [t];
+      }
+  }
 }
 
 
