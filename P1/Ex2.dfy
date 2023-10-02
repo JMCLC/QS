@@ -24,7 +24,7 @@ method copy(a : array<int>, l : int, r : int) returns (ret : array<int>)
 method mergeArr(a : array<int>, l : int, m : int, r : int) 
   requires 0 <= l < m < r <= a.Length  
   requires sorted(a[l..m]) && sorted(a[m..r])
-  // ensures sorted(a[l..r]) 
+  ensures sorted(a[l..r]) 
   ensures a[..l] == old(a[..l])
   ensures a[r..] == old(a[r..]) 
   modifies a 
@@ -35,7 +35,7 @@ method mergeArr(a : array<int>, l : int, m : int, r : int)
   var i := 0;
   var j := 0;
   var cur := l;
-  while (i < arr1.Length && j < arr2.Length)
+  while (i < arr1.Length || j < arr2.Length)
     invariant 0 <= i <= arr1.Length
     invariant 0 <= j <= arr2.Length
     invariant l <= cur <= r
@@ -48,7 +48,7 @@ method mergeArr(a : array<int>, l : int, m : int, r : int)
     invariant forall k :: r <= k < a.Length ==> oldArray[k] == a[k]
     decreases r - cur
   {
-    if (arr1[i] <= arr2[j]) {
+    if (i < arr1.Length  && (j >= arr2.Length || arr1[i] <= arr2[j])) {
       a[cur] := arr1[i];
       i := i + 1;
     } else {
@@ -59,14 +59,28 @@ method mergeArr(a : array<int>, l : int, m : int, r : int)
   }
 }
 
+// Ex3
+method sortAux(a: array<int>, l: int, r: int)
+  requires 0 <= l <= r <= a.Length
+  ensures sorted(a[l..r])
+  modifies a
+  decreases r - l
+{
+  if (r - l <= 2) {
+    return;
+  }
+  var m := (l + r) / 2;
+  sortAux(a, l, m);
+  sortAux(a, m, r);
+  mergeArr(a, l, m, r);
+}
 
-// // Ex3
-// method sort (a : array<int>) 
-//   ensures sorted(a[..])
-//   modifies a 
-// {
-//   // ToDo
-// }
+method sort (a : array<int>) 
+  ensures sorted(a[..])
+  modifies a 
+{
+  sortAux(a, 0, a.Length);
+}
 
 
 
