@@ -57,22 +57,50 @@ method mergeArr(a : array<int>, l : int, m : int, r : int)
     }
     cur := cur + 1;
   }
+  // assert a[l..cur] == a[l..r] == a[l..l+i+j];
+  // assert sorted(a[l..cur]); 
+  // assert forall k1, k2 :: l <= k1 < k2 < l + i ==> a[k1] <= a[k2];
+  // assert sorted(a[l..m]);
+  // assert a[l + i..l + i + j] == a[m..cur];
+  // assert sorted(a[m..r]);
 }
 
 // Ex3
+// method sortAux(a: array<int>, l: int, r: int)
+//   requires 0 <= l <= r <= a.Length
+//   ensures sorted(a[l..r])
+//   modifies a
+//   decreases r - l
+// {
+//   if (r - l < 2) {
+//     return;
+//   }
+//   var m := (l + r) / 2;
+//   sortAux(a, l, m);
+//   sortAux(a, m, r);
+//   mergeArr(a, l, m, r);
+// }
+
 method sortAux(a: array<int>, l: int, r: int)
   requires 0 <= l <= r <= a.Length
+  requires r - l == 1 ==> sorted(a[l..r])
   ensures sorted(a[l..r])
   modifies a
   decreases r - l
 {
-  if (r - l <= 2) {
-    return;
+  if (r - l >= 2) {
+    var m := l + (r - l) / 2;
+    assert m - l == 1 ==> sorted(a[l..m]);
+    assert r - m == 1 ==> sorted(a[m..r]);
+    printArray(a, l, r);
+    sortAux(a, l, m);
+    sortAux(a, m, r);
+    // if (r != a.Length) {
+    mergeArr(a, l, m, r);
+    assert sorted(a[l..m]);
+    assert sorted(a[m..r]);
+    // }
   }
-  var m := (l + r) / 2;
-  sortAux(a, l, m);
-  sortAux(a, m, r);
-  mergeArr(a, l, m, r);
 }
 
 method sort (a : array<int>) 
@@ -82,7 +110,26 @@ method sort (a : array<int>)
   sortAux(a, 0, a.Length);
 }
 
+method printArray(a: array<int>, l: int, r: int) {
+  var i := l;
+  while (i < r) {
+    if (i <= a.Length - 1 && i >= 0) {
+      print a[i], "\n";
+    }
+    i := i + 1;
+  }
+  print "Iteration end\n";
+}
 
-
-
-
+// method Main()
+// {
+//   var a: array<int> := new int[6];
+//   a[0],a[1],a[2],a[3],a[4],a[5] := 1,4,5,2,6,10;
+//   sort(a);
+//   // mergeArr(a, 0, 3, 6);
+//   // var i := 0;
+//   // while (i < 6) {
+//   //   print a[i];
+//   //   i := i + 1;
+//   // }
+// }
