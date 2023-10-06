@@ -50,30 +50,102 @@ class Node {
     return; 
   }
 
-
   // Ex1
-  method reverse(tail : Node?) returns (r : Node) 
+  method reverse(tail : Node?) returns (r : Node)
+    requires Valid()
+    requires tail != null ==> tail.Valid() ==> this !in footprint
+    requires next != null ==> next.Valid() ==> this !in footprint
+    ensures this.next == tail
+    // ensures tail != null ==> tail.footprint != old(tail.footprint)
+    ensures tail != null ==> list == [data] + tail.list && footprint == {this} + tail.footprint
+    // ensures tail != null ==> r.list == [data] + tail.list
+    // ensures tail != null ==> r.footprint == {this} + tail.footprint
+    ensures old(next) != null ==> old(next).footprint == {old(next)} + this.footprint
+    ensures old(next) != null ==> old(next).list == [old(next).data] + this.list
+    ensures tail == null ==> list == [data]
+    ensures tail == null ==> footprint == {this}
+    ensures old(next) == null ==> r == this
+    ensures Valid()
+    ensures r.Valid()
+    modifies footprint
+    decreases footprint
   {
     var old_next := this.next; 
     this.next := tail; 
-    
+    this.footprint := {this};
+    this.list := [data];
+    if (tail != null) {
+      this.footprint := tail.footprint + {this} ; 
+      this.list := [data] + tail.list; 
+    }
     if (old_next == null) {
       r := this; 
-      return; 
+      return;
     } else {
       r := old_next.reverse(this);
       return;  
     }
   }
 
-}
+  // function reverseList(tail: Node?, cur: Node): seq<int>
+  //   requires tail.Valid()
+  // {
+  //   if tail == null then [cur.data]
+  //   else [cur.data] + tail.list
+  // }
 
+  // function reverseFootprint(tail: Node, cur: Node): set<Node>
+  // {
+  //   if tail == null then {cur}
+  //   else {cur} + tail.footprint
+  // }
+
+
+  // method reverse(tail : Node?) returns (r : Node)
+  //   requires Valid()
+  //   ensures fresh(footprint)
+  //   ensures tail == null ==> this.footprint == {this} && this.list == [data]
+  //   ensures tail != null ==> this.footprint == tail.footprint + {this} && this.list == tail.list + [data]
+  //   ensures old(next) != null ==> old(next).list == list + [old(next.data)]
+  //   ensures old(next) != null ==> old(next).footprint == footprint + {old(next)}
+  //   ensures Valid()
+  //   ensures r.Valid()
+  //   modifies footprint
+  //   decreases footprint
+  // {
+  //   var old_next := this.next;
+  //   this.next := tail;
+  //   this.footprint := {this};
+  //   this.list := [data];
+  //   if (tail != null) {
+  //     this.footprint := tail.footprint + {this} ; 
+  //     this.list := [data] + tail.list; 
+  //   }
+  //   if (old_next == null) {
+  //     r := this;
+  //     return; 
+  //   } else {
+  //     r := old_next.reverse(this);
+  //     return;  
+  //   }
+  // }
+}
 
 // Ex2
 
-method ExtendList(lst : Node?, v : int) returns (r : Node) 
+method ExtendList(lst : Node?, v : int) returns (r : Node)
+  requires lst != null ==> lst.Valid()
+  ensures lst == null ==> r.footprint == {r}
+  ensures lst != null ==> r.footprint == {r} + lst.footprint
+  ensures lst == null ==> r.list == [r.data]
+  ensures lst != null ==> r.list == [r.data] + lst.list
+  ensures r.Valid()
 {
-  // ToDo 
+  if (lst != null) {
+    r := lst.prepend(v);
+  } else {
+    r := new Node(v);
+  }
 }
 
 }
