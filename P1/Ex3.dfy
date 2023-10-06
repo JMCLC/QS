@@ -53,53 +53,43 @@ class Node {
   // Ex1
   method reverse(tail : Node?) returns (r : Node)
     requires Valid()
-    requires tail != null ==> tail.Valid() ==> this !in footprint
-    requires next != null ==> next.Valid() ==> this !in footprint
-    ensures this.next == tail
-    // ensures tail != null ==> tail.footprint != old(tail.footprint)
-    ensures tail != null ==> list == [data] + tail.list && footprint == {this} + tail.footprint
-    // ensures tail != null ==> r.list == [data] + tail.list
-    // ensures tail != null ==> r.footprint == {this} + tail.footprint
-    ensures old(next) != null ==> old(next).footprint == {old(next)} + this.footprint
-    ensures old(next) != null ==> old(next).list == [old(next).data] + this.list
+    requires tail != null ==> tail.Valid()
+    requires next != null ==> next.Valid()
+    requires next != null ==> this !in next.footprint
+    requires tail != null ==> this !in tail.footprint
+    ensures tail == null ==> this.footprint == {this}
+    ensures tail != null ==> tail.footprint * old(this.footprint)   == {this}
     ensures tail == null ==> list == [data]
+    ensures tail != null ==> list == [data] + tail.list
     ensures tail == null ==> footprint == {this}
-    ensures old(next) == null ==> r == this
+    ensures tail != null ==> footprint == {this} + tail.footprint
+    ensures tail == null ==> r.list == reverseList(old(this.list))
+    ensures tail != null ==> r.list == old(tail.list) + reverseList(old(this.list))
     ensures Valid()
     ensures r.Valid()
     modifies footprint
+    modifies next
     decreases footprint
   {
     var old_next := this.next; 
     this.next := tail; 
-    this.footprint := {this};
-    this.list := [data];
+
     if (tail != null) {
-      this.footprint := tail.footprint + {this} ; 
-      this.list := [data] + tail.list; 
+      this.footprint := {this} + tail.footprint; 
+      this.list := [data] + tail.list;
+    } else {
+      this.footprint := {this};
+      this.list := [data];
     }
+
     if (old_next == null) {
       r := this; 
       return;
     } else {
       r := old_next.reverse(this);
-      return;  
+      return; 
     }
   }
-
-  // function reverseList(tail: Node?, cur: Node): seq<int>
-  //   requires tail.Valid()
-  // {
-  //   if tail == null then [cur.data]
-  //   else [cur.data] + tail.list
-  // }
-
-  // function reverseFootprint(tail: Node, cur: Node): set<Node>
-  // {
-  //   if tail == null then {cur}
-  //   else {cur} + tail.footprint
-  // }
-
 
   // method reverse(tail : Node?) returns (r : Node)
   //   requires Valid()
@@ -131,8 +121,12 @@ class Node {
   // }
 }
 
-// Ex2
+function reverseList(s: seq<int>): seq<int> {
+  if s == [] then []
+  else reverseList(s[1..]) + [s[0]]
+}
 
+// Ex2
 method ExtendList(lst : Node?, v : int) returns (r : Node)
   requires lst != null ==> lst.Valid()
   ensures lst == null ==> r.footprint == {r}
