@@ -53,35 +53,21 @@ class Node {
   // Ex1
   method reverse(tail : Node?) returns (r : Node)
     requires Valid()
-    requires tail != null ==> tail.Valid()
-    requires next != null ==> next.Valid()
-    requires next != null ==> this !in next.footprint
-    requires tail != null ==> this !in tail.footprint
-    ensures tail == null ==> this.footprint == {this}
-    ensures tail != null ==> tail.footprint * old(this.footprint)   == {this}
-    ensures tail == null ==> list == [data]
-    ensures tail != null ==> list == [data] + tail.list
-    ensures tail == null ==> footprint == {this}
-    ensures tail != null ==> footprint == {this} + tail.footprint
+    requires tail != null ==> tail.Valid() && this.footprint * tail.footprint == {}
+    ensures tail == this.next && r.Valid() && Valid()
     ensures tail == null ==> r.list == reverseList(old(this.list))
-    ensures tail != null ==> r.list == old(tail.list) + reverseList(old(this.list))
-    ensures Valid()
-    ensures r.Valid()
+    ensures tail != null ==> next.Valid() && tail in footprint && r.list == reverseList(old(this.list)) + tail.list
     modifies footprint
-    modifies next
     decreases footprint
   {
     var old_next := this.next; 
     this.next := tail; 
-
+    this.footprint := {this};
+    this.list := [data];
     if (tail != null) {
       this.footprint := {this} + tail.footprint; 
       this.list := [data] + tail.list;
-    } else {
-      this.footprint := {this};
-      this.list := [data];
     }
-
     if (old_next == null) {
       r := this; 
       return;
@@ -90,35 +76,6 @@ class Node {
       return; 
     }
   }
-
-  // method reverse(tail : Node?) returns (r : Node)
-  //   requires Valid()
-  //   ensures fresh(footprint)
-  //   ensures tail == null ==> this.footprint == {this} && this.list == [data]
-  //   ensures tail != null ==> this.footprint == tail.footprint + {this} && this.list == tail.list + [data]
-  //   ensures old(next) != null ==> old(next).list == list + [old(next.data)]
-  //   ensures old(next) != null ==> old(next).footprint == footprint + {old(next)}
-  //   ensures Valid()
-  //   ensures r.Valid()
-  //   modifies footprint
-  //   decreases footprint
-  // {
-  //   var old_next := this.next;
-  //   this.next := tail;
-  //   this.footprint := {this};
-  //   this.list := [data];
-  //   if (tail != null) {
-  //     this.footprint := tail.footprint + {this} ; 
-  //     this.list := [data] + tail.list; 
-  //   }
-  //   if (old_next == null) {
-  //     r := this;
-  //     return; 
-  //   } else {
-  //     r := old_next.reverse(this);
-  //     return;  
-  //   }
-  // }
 }
 
 function reverseList(s: seq<int>): seq<int> {
