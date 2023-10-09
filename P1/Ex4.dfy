@@ -70,11 +70,26 @@ class Queue {
 
   // Ex3.2
   method pop() returns (r : int)
-    requires Valid() && lst1 != null
+    requires Valid() && (lst2 == null ==> lst1 != null)
+    ensures old(lst2) != null ==>
+      old(lst1) == lst1 &&
+      (old(lst2.next) == null ==> 
+        footprint2 == {} &&
+        lst2 == null
+      ) &&
+      (old(lst2.next) != null ==>
+        footprint2 == old(lst2.next.footprint)
+      )
+    ensures old(lst2) == null ==>
+      old(lst1).Valid() &&
+      (old(lst1.next) == null ==>
+        footprint2 == {}
+      )
+    ensures old(lst2) == null ==> lst1 == null
+    ensures old(lst2) != null ==> r == old(lst2.data)
     ensures Valid()
     modifies this, this.footprint2, this.footprint1
   {
-
     if (lst2 == null) {
       lst2 := lst1.reverse(null); 
       lst1 := null;
