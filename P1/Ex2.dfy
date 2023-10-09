@@ -36,16 +36,14 @@ method mergeArr(a : array<int>, l : int, m : int, r : int)
   var j := 0;
   var cur := l;
   while (i < arr1.Length || j < arr2.Length)
-    invariant 0 <= i <= arr1.Length
+    invariant 0 <= i <= arr1.Length 
     invariant 0 <= j <= arr2.Length
-    invariant l <= cur <= r
-    invariant cur == l + i + j
+    invariant l <= cur <= r && cur == l + i + j
     invariant sorted(arr1[..]) && sorted(arr2[..])
     invariant sorted(a[l..cur])
     invariant cur - l >= 1 && i < arr1.Length ==> a[cur - 1] <= arr1[i]
     invariant cur - l >= 1 && j < arr2.Length ==> a[cur - 1] <= arr2[j]
-    invariant forall k :: 0 <= k < l ==> oldArray[k] == a[k]
-    invariant forall k :: r <= k < a.Length ==> oldArray[k] == a[k]
+    invariant a[..l] == oldArray[..l] && a[r..] == oldArray[r..]
     decreases r - cur
   {
     if (i < arr1.Length  && (j >= arr2.Length || arr1[i] <= arr2[j])) {
@@ -62,9 +60,7 @@ method mergeArr(a : array<int>, l : int, m : int, r : int)
 // Ex3
 method sortAux(a: array<int>, l: int, r: int)
   requires 0 <= l <= r <= a.Length
-  ensures sorted(a[l..r])
-  ensures a[..l] == old(a[..l])
-  ensures a[r..] == old(a[r..])
+  ensures a[..l] == old(a[..l]) && a[r..] == old(a[r..]) && sorted(a[l..r])
   modifies a
   decreases r - l
 {
