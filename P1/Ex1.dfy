@@ -16,6 +16,7 @@ function serialise<V>(t : Tree<V>) : seq<Code<V>>
 function deserialiseAux<V>(cs: seq<Code<V>>, trees: seq<Tree<V>>) : seq<Tree<V>>
   requires |cs| > 0 || |trees| > 0
   ensures |deserialiseAux(cs, trees)| > 0
+  decreases cs
 {
   if (cs == []) then trees
   else match cs[0] {
@@ -36,9 +37,40 @@ function deserialise<V>(cs : seq<Code<V>>): seq<Tree<V>>
 }
 
 // Ex 2
+method testSerialise() {
+  // Test 1
+  var tree1 := SingleNode(2, SingleNode(44, Leaf(3)));
+  var treeSerialise1 := serialise(tree1);
+  assert treeSerialise1 == [CLf(3), CSNd(44), CSNd(2)];
+  // Test 2
+  var tree2 := DoubleNode(2, Leaf(44), Leaf(1));
+  var treeSerialise2 := serialise(tree2);
+  assert treeSerialise2 == [CLf(1), CLf(44), CDNd(2)];
+  // Test 3
+  var tree3 := DoubleNode(2, Leaf(44), SingleNode(1, Leaf(3)));
+  var treeSerialise3 := serialise(tree3);
+  assert treeSerialise3 == [CLf(3), CSNd(1), CLf(44), CDNd(2)];
+}
 
+// Ex 3
+method testDeserialise() {
+  // Test 1
+  var treeSerialise1 := [CLf(3), CSNd(44), CSNd(2)];
+  var tree1 := deserialise(treeSerialise1);
+  assert tree1 == [SingleNode(2, SingleNode(44, Leaf(3)))];
+  // Test 2
+  var treeSerialise2 := [CLf(1), CLf(44), CDNd(2)];
+  var tree2 := deserialise(treeSerialise2);
+  assert tree2 == [DoubleNode(2, Leaf(44), Leaf(1))];
+  // Test 3
+  var treeSerialise3 := [CLf(3), CSNd(1), CLf(44), CDNd(2)];
+  var tree3 := deserialise(treeSerialise3);
+  assert tree3 == [DoubleNode(2, Leaf(44), SingleNode(1, Leaf(3)))];
+}
 
-// Ex 3 
+method Main() {
+  testDeserialise();
+}
 
 // Ex 4
 lemma SerialiseLemmaAux<V>(t: Tree<V>, codes: seq<Code<V>>, trees: seq<Tree<V>>)
