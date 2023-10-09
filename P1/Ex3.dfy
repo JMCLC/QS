@@ -86,10 +86,8 @@ function reverseList(s: seq<int>): seq<int> {
 // Ex2
 method ExtendList(lst : Node?, v : int) returns (r : Node)
   requires lst != null ==> lst.Valid()
-  ensures lst == null ==> r.footprint == {r}
-  ensures lst != null ==> r.footprint == {r} + lst.footprint
-  ensures lst == null ==> r.list == [r.data]
-  ensures lst != null ==> r.list == [r.data] + lst.list
+  ensures lst == null ==> r.footprint == {r} && r.list == [v]
+  ensures lst != null ==> r.footprint == {r} + old(lst.footprint) && r.list == [v] + old(lst.list) 
   ensures r.Valid()
 {
   if (lst != null) {
