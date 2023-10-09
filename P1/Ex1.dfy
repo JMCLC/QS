@@ -68,10 +68,6 @@ method testDeserialise() {
   assert tree3 == [DoubleNode(2, Leaf(44), SingleNode(1, Leaf(3)))];
 }
 
-method Main() {
-  testDeserialise();
-}
-
 // Ex 4
 lemma SerialiseLemmaAux<V>(t: Tree<V>, codes: seq<Code<V>>, trees: seq<Tree<V>>)
   ensures deserialiseAux(serialise(t) + codes, trees) == deserialiseAux(codes, [t] + trees)
