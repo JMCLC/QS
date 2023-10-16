@@ -1,0 +1,43 @@
+# This YAML template is designed for capturing information about discovered
+# vulnerabilities.
+
+# 'class' options:
+#   - 'tp' (true positive) for confirmed vulnerabilities
+#   - 'fp' (false positive) for incorrectly flagged issues
+#   - 'fn' (false negative) for bugs identified manually
+
+report:
+  - bug:
+      type: Null Dereference
+      lineno: 76
+      class: tp
+      description: Found with infer - Malloc might fail and map might be NULL
+
+  - bug:
+      type: Memory Leak // Not finished
+      lineno: 134
+      class: tp
+      description: Memory used for variable entries is not freed after finishing using it - Found by infer with pulse
+
+  - bug:
+      type: Memory leak
+      lineno: 161
+      class: fp
+      description: Memory used for variable var is being returned in the memcpy function and being used afterwards - Found by infer with pulse
+
+ - bug:
+      type: Null Dereference
+      lineno: 161
+      class: tp
+      description: Found with infer - Malloc might fail and the pointer val might be NULL
+
+ - bug:
+      type: Nullptr Dereference
+      lineno: 171
+      class: tp
+      description: Found with infer - Malloc might fail and the pointer fields might be NULL and it does check by only frees the map and does not return or exit the program
+
+      
+
+
+  # You can continue adding more entries for additional vulnerabilities as needed.
