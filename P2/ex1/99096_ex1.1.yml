@@ -1,0 +1,78 @@
+report:
+  - bug:
+      type: Null Dereference
+      lineno: 76
+      class: tp
+      description: Found with infer - Malloc might fail and map might be NULL
+
+    - bug:
+      type: Nullptr Dereference
+      lineno: 72
+      class: tp
+      description: Found with clang - Malloc might fail and fields might be NULL causing the field pointer to be NULL aswell
+
+  - bug:
+      type: Potential insecure memory buffer bounds restriction in call 'memcpy'
+      lineno: 120
+      class: fp
+      description: Found with clang with InsecureAPI Dprecated Or Unsafe Buffer Handling checker - Clang reports this call to memcpy as insecure when that is not the case since both entries and field->entires have the same size since entries is allocated using malloc by multiplying field->size by the size of a single entry resulting in the same number of entries to the hashmap
+
+    - bug:
+      type: Allocator sizeof operand mismatch
+      lineno: 124
+      class: tp
+      description: Found with clang with UnixAPI checker - Result of 'malloc' is converted to a pointer of type 'char', which is incompatible with sizeof operand type 'char *'
+
+    - bug:
+      type: Potential insecure memory buffer bounds restriction in call 'strcpy'
+      lineno: 125
+      class: fp
+      description: Found with clang with InsecureAPI Strcpy checker - Clang reports this call to strcpy as insecure when that is not the case since both arguments of the function have the same size
+
+  - bug:
+      type: Memory Leak
+      lineno: 130
+      class: fp
+      description: Memory used for variable entries is not freed after finishing using it - Found by infer with pulse
+
+  - bug:
+      type: Potential insecure memory buffer bounds restriction in call 'memcpy'
+      lineno: 132
+      class: fp
+      description: Found with clang with InsecureAPI Dprecated Or Unsafe Buffer Handling checker - Clang reports this call to memcpy as insecure when that is not the case since both val and value have the same size that being length
+
+- bug:
+      type: Potential insecure memory buffer bounds restriction in call 'memcpy'
+      lineno: 138
+      class: tp
+      description: Found with clang with InsecureAPI Dprecated Or Unsafe Buffer Handling checker - Clang reports this call to memcpy as insecure when that is not the case since both entry and (field->entries + field->size) are entries of an hashmap so they have the same size
+
+  - bug:
+      type: Memory leak
+      lineno: 156
+      class: fp
+      description: Memory used for variable var is being returned in the memcpy function and being used afterwards - Found by infer with pulse
+
+ - bug:
+      type: Null Dereference
+      lineno: 156
+      class: tp
+      description: Found with infer - Malloc might fail and the pointer val might be NULL
+
+  - bug:
+      type: Potential insecure memory buffer bounds restriction in call 'memcpy'
+      lineno: 156
+      class: fp
+      description: Found with clang with InsecureAPI Dprecated Or Unsafe Buffer Handling checker - Clang reports this call to memcpy as insecure when that is not the case since both val and entry->val have the same size since val is allocated using malloc by using entry->len and this entry->len being the size of entry->val
+
+ - bug:
+      type: Nullptr Dereference
+      lineno: 163
+      class: tp
+      description: Found with infer - Malloc might fail and the pointer fields might be NULL and it does check by only frees the map and does not return or exit the program
+
+ - bug:
+      type: Memory Leak
+      lineno: 170
+      class: tp
+      description: Found with clang - The ret pointer is not freed after it is no longer used

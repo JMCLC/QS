@@ -60,11 +60,17 @@ struct hashmap_entry {
 hashmap_t hashmap_new(int size) {
   hashmap_t map = (hashmap_t)malloc(sizeof(struct hashmap_s));
 
+  if (map == NULL) {
+    exit(0);
+    return 0;
+  }
+
   struct hashmap_field *fields =
       (struct hashmap_field *)malloc(sizeof(struct hashmap_field) * size);
 
   if (!fields) {
     free(map);
+    exit(0);
   }
 
   for (int i = 0; i < size; i++) {
@@ -117,11 +123,17 @@ void hashmap_set(hashmap_t map, char *key, void *value, size_t length) {
   field->size++;
   struct hashmap_entry *entries = (struct hashmap_entry *)malloc(
       field->size * sizeof(struct hashmap_entry));
+  if (!entries) {
+    exit(0);
+  }
   memcpy(entries, field->entries,
          (field->size - 1) * sizeof(struct hashmap_entry));
 
   entry = &entries[field->size - 1];
-  entry->key = (char *)malloc(sizeof(key));
+  entry->key = (char* )malloc(strlen(key) + 1);
+  if (!entry-key) {
+    exit(0);
+  }
   strcpy(entry->key, key);
 
   field->entries = entries;
@@ -129,6 +141,9 @@ void hashmap_set(hashmap_t map, char *key, void *value, size_t length) {
 set_val:
   if (value != NULL) {
     void *val = malloc(length);
+    if (!val) {
+      exit(0);
+    }
     entry->val = memcpy(val, value, length);
     entry->len = length;
   } else {
@@ -153,7 +168,12 @@ void *hashmap_get(hashmap_t map, char *key) {
     entry = field->entries + i;
     if (strcmp(entry->key, key) == 0) {
       void *val = malloc(entry->len);
-      return memcpy(val, entry->val, entry->len);
+      if (val == NULL) {
+        exit(0);
+      }
+      memcpy(val, entry->val, entry->len);
+      free(entry);
+      return val;
     }
   }
   return NULL;
@@ -169,6 +189,7 @@ int main() {
   int *ret = (int *)hashmap_get(map, key);
   assert(*ret == value);
 
+  free(ret);
   hashmap_free(map);
   return 0;
 }
