@@ -1,27 +1,27 @@
-/*
- * Collections-C
- * Copyright (C) 2013-2015 Srđan Panić <srdja.panic@gmail.com>
- *
- * This file is part of Collections-C.
- *
- * Collections-C is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Collections-C is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Collections-C. If not, see <http://www.gnu.org/licenses/>.
- */
+#include <stdio.h>
+#include "../treetable.h"
+#include <assert.h>
 
-/* Tree operations are based on CLRS RB Tree. */
+void TestTemplate(int key1, int key2, char value1, char value2) {
+    TreeTable *table;
+    treetable_new(&table);
+    enum cc_stat status = treetable_add(table, &key1, &value1);
+    enum cc_stat status2 = treetable_add(table, &key2, &value2);
+    if (status == CC_OK) {
+        assert(treetable_contains_key(table, &key1));
+    }
+    if (status2 == CC_OK) {
+        assert(treetable_contains_key(table, &key2));
+        assert(treetable_contains_value(table, &value2) >= 1);
+    }
+    treetable_destroy(table);
+}
 
-#include "treetable.h"
-
+int main() {
+    TestTemplate(0, 0, '.', '.');
+    TestTemplate(1, 0, '.', '.');
+    TestTemplate(-1979711488, 0, '.', '.');
+}
 
 #define RB_BLACK 1
 #define RB_RED   0
@@ -516,43 +516,4 @@ static RBNode *get_successor_node(TreeTable const * const table, RBNode *x)
         y = y->parent;
     }
     return y;
-}
-
-int height(RBNode* node) {
-    if (node == NULL) {
-        return 0;
-    }
-    int left_height = height(node->left);
-    int right_height = height(node->right);
-    if (left_height >= right_height) {
-        return left_height + 1;
-    }
-    return right_height + 1;
-}
-
-int balanced(TreeTable const * const table) {
-    if (abs(height(table->root->left) - height(table->root->right)) <= 1) {
-        return 1;
-    }
-    return 0;
-}
-
-int sortedAux(TreeTable const * const table, RBNode* node) {
-    if (node == NULL) {
-        return 0;
-    }
-    int key = (*(int*)node->key);
-    int min = (*(int*) (tree_min(table, node->right)->key));
-    int max = (*(int*) (tree_max(table, node->right)->key));
-    if (key < min && key > max) {
-        return 1 + sortedAux(table, node->left) + sortedAux(table, node->right);
-    }
-    return 0;
-}
-
-int sorted(TreeTable const * const table) {
-    if (sortedAux(table, table->root) == (int) table->size) {
-        return 1;
-    }
-    return 0;
 }

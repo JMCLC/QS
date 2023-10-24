@@ -93,7 +93,6 @@ typedef struct treetable_conf_s {
     void   (*mem_free)    (void *block);
 } TreeTableConf;
 
-
 void          treetable_conf_init        (TreeTableConf *conf);
 enum cc_stat  treetable_new              (TreeTable **tt);
 enum cc_stat  treetable_new_conf         (TreeTableConf const * const conf, TreeTable **tt);
@@ -110,5 +109,8 @@ enum cc_stat  treetable_get_lesser_than  (TreeTable const * const table, const v
 size_t        treetable_size             (TreeTable const * const table);
 bool          treetable_contains_key     (TreeTable const * const table, const void *key);
 size_t        treetable_contains_value   (TreeTable const * const table, const void *value);
+
+int           balanced                   (TreeTable const * const table);
+int           sorted                     (TreeTable const * const table);
 
 #endif /* COLLECTIONS_C_TREETABLE_H */
