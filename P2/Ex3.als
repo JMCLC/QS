@@ -1,4 +1,4 @@
-sig List {
+sig HeadNode {
     frst: lone Node,
     lst: lone Node
 }
@@ -13,17 +13,22 @@ fact noLoop {
 }
 
 // fact noNextOnLast {
-//     List.lst.nnext = none
+//     HeadNode.lst.nnext = none
 // }
 
 // fact noPrevOnLast {
-//     List.frst.nprev = none
+//     HeadNode.frst.nprev = none
 // }
 
 fact ifNextThenInPrev {
     all n1, n2: Node | n2 in n1.nnext implies n1 in n2.nprev
-} 
+    all n1, n2: Node | n1 in n2.nprev implies n2 in n1.nnext
+}
+
+fact lstReachableFromFrst {
+    all l: HeadNode | l.lst in l.frst.^nnext
+}
 
 run {}
 
-for exactly 1 List, exactly 5 Node
+// for exactly 1 HeadNode, exactly 5 Node
