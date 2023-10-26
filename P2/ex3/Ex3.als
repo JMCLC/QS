@@ -53,6 +53,11 @@ fact C9 {
     always all n: Node | n !in n.^nprev
 }
 
+// C10: If a Node is free it can not be connected to another node
+fact C10 {
+    always all n: Node | n !in HeadNode.frst.*nnext implies n.nnext = none && n.nprev = none 
+}
+
 pred insertFirst[n: Node, hn: HeadNode] {
     hn.frst' = n
     hn.frst.nprev' = n
@@ -125,13 +130,7 @@ for exactly 2 HeadNode, exactly 5 Node
 
 // EX 3.4:
 // - Insert Trace
-run {
-    eventually once (some n: Node, hn: HeadNode | insert[n, hn])
-}
+run insert for 2 HeadNode, 3 Node
 
 // - Remove Trace
-run {
-    eventually once (some n: Node, hn: HeadNode | remove[n, hn])
-}
-
-for 5 but 6 steps
+run remove for 2 HeadNode, 3 Node
