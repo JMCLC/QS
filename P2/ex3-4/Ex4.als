@@ -1,4 +1,4 @@
-open ex3/Ex3
+open Ex3
 open util/ordering[Id]
 
 sig OrderedHeadNode extends HeadNode {
@@ -25,11 +25,15 @@ fun FirstGreaterId[on: OrderedNode, ohn: OrderedHeadNode]: Id {
 }
 
 pred orderedInsertRest[on: OrderedNode, ohn: OrderedHeadNode] {
-    on.id.lt[ohn.frst.id] implies ohn.frst' = on && ohn.frst.nprev' = on && on.nnext' = ohn.frst && no (on.nprev')
-    on.id.gt[ohn.lst.id] implies ohn.lst' = on && ohn.lst.nnext' = on && on.nprev' = ohn.lst && no (on.nnext')
-    on.id.gt[ohn.frst.id] && on.id.lt[ohn.lst.id] implies 
-    all on1: OrderedNode | (on1 in ohn.frst.*nnext && on1.id = FirstGreaterId[on, ohn]) implies
-    on1.nprev' = on && on.nnext' = on1 && on.nprev' = on1.nprev && on1.nprev.nnext' = on1
+    on.id.gt[ohn.frst.id] implies all n1: OrderedNode | (n1 in ohn.frst.*nnext && on.id.gt[n1.id] && (on.id.lt[n1.nnext.id] || no (n1.nnext))) implies on.nprev' = n1 && n1.nnext' = on && on.nnext' = n1.nnext && n1.nnext.nprev' = on
+    on.id.lt[ohn.frst.id] implies no (on.nprev') && on.nnext' = ohn.frst && ohn.frst' = on && ohn.frst.nprev' = on
+    // on.id.lt[ohn.frst.id] implies ohn.frst' = on && ohn.frst.nprev' = on && on.nnext' = ohn.frst && no (on.nprev')
+    // on.id.gt[ohn.lst.id] implies ohn.lst' = on && ohn.lst.nnext' = on && on.nprev' = ohn.lst && no (on.nnext')
+    // on.id.gt[ohn.frst.id] && on.id.lt[ohn.lst.id] implies 
+    // all n1: OrderedNode | n1 in ohn.frst.^nnext && n1.id.lt[on.id] && n1.nnext.id.gt[on.id] implies
+    // on.nprev' = n1 && on.nnext' = n1.nnext && n1.nnext' = on && n1.nnext.nprev' = on
+    // all on1: OrderedNode | (on1 in ohn.frst.*nnext && on1.id = FirstGreaterId[on, ohn]) implies
+    // on1.nprev' = on && on.nnext' = on1 && on.nprev' = on1.nprev && on1.nprev.nnext' = on1
 }
 
 pred orderedInsertSingleton[on: OrderedNode, ohn: OrderedHeadNode] {
@@ -56,7 +60,7 @@ pred orderedInsert[on: OrderedNode, ohn: OrderedHeadNode] {
     // - All the linked lists different from the one received stay the same
     all ohn1: HeadNode | ohn1 != ohn implies ohn1.frst' = ohn1.frst && ohn1.lst' = ohn1.lst
     // - All the nodes that are not the received one or the frst of the linked list (the frst could be none) stay the same
-    // all on1: Node | (on1 != on && on1 != ohn.frst) implies on1.nnext' = on1.nnext && on1.nprev' = on1.nprev
+    all on1: Node | (on1 != on && on1 != ohn.frst) implies on1.nnext' = on1.nnext && on1.nprev' = on1.nprev
 }
 
 pred orderedRemoveRest[on: OrderedNode, ohn: OrderedHeadNode] {
@@ -103,8 +107,8 @@ pred orderedRemove[on: OrderedNode, ohn: OrderedHeadNode] {
 // }
 
 // EX 4.2
-run {}
-for exactly 2 OrderedHeadNode, exactly 5 OrderedNode, exactly 5 Id, exactly 0 Node, exactly 0 HeadNode
+// run {}
+// for exactly 2 OrderedHeadNode, exactly 5 OrderedNode, exactly 5 Id, exactly 0 Node, exactly 0 HeadNode
 
 // EX 4.4:
 // - Insert Trace
@@ -113,16 +117,16 @@ for exactly 2 OrderedHeadNode, exactly 5 OrderedNode, exactly 5 Id, exactly 0 No
 
 // run {
 //     eventually once (some n1: OrderedNode, hn: OrderedHeadNode | #(hn.frst.*nnext) = 3 && hn.frst.id in n1.id.nexts[])
-//     // eventually once (some n1: OrderedNode, hn: OrderedHeadNode | n1 !in OrderedHeadNode.frst.*nnext && n1 !in HeadNode.frst.*nnext && #(hn.frst.*nnext) = 2 && hn.frst.id in n1.id.nexts[])
-//     // eventually once (some n1: OrderedNode, hn: OrderedHeadNode | n1 !in OrderedHeadNode.frst.*nnext && FirstGreaterId[n1, hn] = hn.frst.id)
-//     // eventually once (some n: OrderedNode, hn: OrderedHeadNode | orderedInsert[n, hn])
+//     eventually once (some n1: OrderedNode, hn: OrderedHeadNode | n1 !in OrderedHeadNode.frst.*nnext && n1 !in HeadNode.frst.*nnext && #(hn.frst.*nnext) = 2 && hn.frst.id in n1.id.nexts[])
+//     eventually once (some n1: OrderedNode, hn: OrderedHeadNode | n1 !in OrderedHeadNode.frst.*nnext && FirstGreaterId[n1, hn] = hn.frst.id)
+//     eventually once (some n: OrderedNode, hn: OrderedHeadNode | #(hn.frst.*nnext) = 2 && orderedInsert[n, hn])
 // }
 
 // for exactly 2 OrderedHeadNode, exactly 5 OrderedNode, exactly 5 Id, exactly 0 Node, exactly 0 HeadNode
 
 // for 5 but 6 steps
 
-// run orderedInsert for exactly 2 OrderedHeadNode, exactly 5 OrderedNode, exactly 5 Id, exactly 0 Node, exactly 0 HeadNode
+run orderedInsert for exactly 2 OrderedHeadNode, exactly 5 OrderedNode, exactly 5 Id, exactly 0 Node, exactly 0 HeadNode
 
 // - Remove Trace
 // run orderedRemove for exactly 2 OrderedHeadNode, exactly 5 OrderedNode, exactly 5 Id, exactly 0 Node, exactly 0 HeadNode
