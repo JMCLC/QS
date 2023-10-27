@@ -58,6 +58,12 @@ fact C10 {
     always all n: Node | n !in HeadNode.frst.*nnext implies n.nnext = none && n.nprev = none 
 }
 
+// C11: If there is a value in a linked list there has to be a frst and lst connection
+fact C11 {
+    always all hn: HeadNode | some hn.frst implies some hn.lst
+    always all hn: HeadNode | some hn.lst implies some hn.frst
+}
+
 pred insertFirst[n: Node, hn: HeadNode] {
     hn.frst' = n
     hn.frst.nprev' = n
@@ -92,11 +98,12 @@ pred insert[n: Node, hn: HeadNode] {
     all n1: Node | (n1 != n && n1 != hn.frst) implies n1.nnext' = n1.nnext && n1.nprev' = n1.nprev
 }
 
-pred removeFirst[n: Node, hn: HeadNode] {
+pred removeRest[n: Node, hn: HeadNode] {
     no (n.nprev')
     no (n.nnext')
-    no (n.nnext.nprev')
-    hn.frst' = n.nnext
+    n = hn.frst implies no (n.nnext.nprev') && hn.frst' = n.nnext
+    n = hn.lst implies no (n.nprev.nnext') && hn.lst' = n.nprev
+    (n != hn.lst && n != hn.frst) implies n.nnext.nprev' = n.nprev && n.nprev.nnext' = n.nnext
 }
 
 pred removeSingleton[n: Node, hn: HeadNode] {
@@ -109,19 +116,19 @@ pred removeSingleton[n: Node, hn: HeadNode] {
 pred remove[n: Node, hn: HeadNode] {
     // Pre-conditions:
     // - The node must belong to the linked list received
-    n in hn.frst
+    n in hn.frst.*nnext
 
     // Post-conditions:
     // - If the last value of the list is the one received the linked list should be emptied
-    n = hn.lst implies removeSingleton[n, hn]
-    // - Else the Node received is removed and the one that was next to it gets put as the first one in the list
-    n != hn.lst implies removeFirst[n, hn]
+    n = hn.lst && n = hn.frst implies removeSingleton[n, hn]
+    // - Else the Node received is removed and the ones that were next to it are connected
+    (n != hn.lst || n != hn.frst) implies removeRest[n, hn]
 
     // Frame-conditions:
     // - All the linked lists different from the one received stay the same
     all hn1: HeadNode | hn1 != hn implies hn1.frst' = hn1.frst && hn1.lst' = hn1.lst
     // - All the nodes that are not the received one or the next one (it could be none) stay the same
-    all n1: Node | (n1 != n && n1 != n.nnext) implies n1.nnext' = n1.nnext && n1.nprev' = n1.nprev
+    all n1: Node | (n1 != n && n1 != n.nnext && n1 != n.nprev) implies n1.nnext' = n1.nnext && n1.nprev' = n1.nprev
 }
 
 // EX 3.2
@@ -130,7 +137,7 @@ for exactly 2 HeadNode, exactly 5 Node
 
 // EX 3.4:
 // - Insert Trace
-run insert for 2 HeadNode, 3 Node
+run insert for exactly 2 HeadNode, exactly 5 Node
 
 // - Remove Trace
-run remove for 2 HeadNode, 3 Node
+run remove for exactly 2 HeadNode, exactly 5 Node
