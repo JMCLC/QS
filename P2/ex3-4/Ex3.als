@@ -1,6 +1,6 @@
 sig HeadNode {
-    var frst: one Node,
-    var lst: one Node
+    var frst: lone Node,
+    var lst: lone Node
 }
 
 sig Node {
